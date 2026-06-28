@@ -1,0 +1,5 @@
+<footer class="footer">
+  <div class="container">
+    <p>Built for Bun, Hono, Eta, raw SQL, and small safe edits.</p>
+  </div>
+</footer>

@@ -1,0 +1,16 @@
+<section class="stack">
+  <div>
+    <p class="eyebrow">Private page</p>
+    <h1>Dashboard</h1>
+    <p class="muted">Signed in as <strong><%= it.user.name %></strong> (<%= it.user.email %>).</p>
+  </div>
+
+  <div class="card stack">
+    <h2>What to build next</h2>
+    <p>
+      Add your application tables in <code>src/db/migrations</code>, put named SQL
+      queries in <code>src/db/queries</code>, then render new pages from
+      <code>src/routes</code>.
+    </p>
+  </div>
+</section>

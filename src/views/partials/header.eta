@@ -1,0 +1,19 @@
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <img src="/assets/<%= it.assetVersion %>/logo.svg" alt="" width="28" height="28">
+      <span>Bun Hono SSR</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <% if (it.user) { %>
+        <a href="/dashboard">Dashboard</a>
+        <form method="post" action="/logout">
+          <button class="link-button" type="submit">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a class="button button-small" href="/register">Register</a>
+      <% } %>
+    </nav>
+  </div>
+</header>

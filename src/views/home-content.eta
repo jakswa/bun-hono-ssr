@@ -1,0 +1,31 @@
+<section class="hero">
+  <div class="eyebrow">AI-first SSR starter</div>
+  <h1>Simple server-rendered apps that are easy to change.</h1>
+  <p class="hero-copy">
+    A Bun-first template with Hono routes, Eta templates, HTML forms, PostgreSQL,
+    migrations, encrypted cookie sessions, and one plain CSS file.
+  </p>
+  <div class="actions">
+    <% if (it.user) { %>
+      <a class="button" href="/dashboard">Open dashboard</a>
+    <% } else { %>
+      <a class="button" href="/register">Create an account</a>
+      <a class="button button-secondary" href="/login">Log in</a>
+    <% } %>
+  </div>
+</section>
+
+<section class="grid three-up" aria-label="Template principles">
+  <article class="card">
+    <h2>One obvious path</h2>
+    <p>No ORM, no Tailwind, no bundler, no JWT fork in the road.</p>
+  </article>
+  <article class="card">
+    <h2>SSR and forms</h2>
+    <p>Pages render on the server and form posts return redirects or HTML.</p>
+  </article>
+  <article class="card">
+    <h2>Plain assets</h2>
+    <p>App CSS and public assets share a versioned cache-busting URL.</p>
+  </article>
+</section>

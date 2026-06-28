@@ -1,0 +1,35 @@
+<section class="auth-shell">
+  <div>
+    <p class="eyebrow">Start here</p>
+    <h1>Register</h1>
+    <p class="muted">Create a user and an encrypted private-cookie session.</p>
+  </div>
+
+  <form class="card stack" method="post" action="/register">
+    <% if (it.errors.length > 0) { %>
+      <div class="errors" role="alert">
+        <% it.errors.forEach((error) => { %>
+          <p><%= error %></p>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <label class="field">
+      <span>Name</span>
+      <input class="input" name="name" autocomplete="name" value="<%= it.values.name || '' %>" required>
+    </label>
+
+    <label class="field">
+      <span>Email</span>
+      <input class="input" name="email" type="email" autocomplete="email" value="<%= it.values.email || '' %>" required>
+    </label>
+
+    <label class="field">
+      <span>Password</span>
+      <input class="input" name="password" type="password" autocomplete="new-password" minlength="8" required>
+    </label>
+
+    <button class="button" type="submit">Create account</button>
+    <p class="muted">Already registered? <a href="/login">Log in</a>.</p>
+  </form>
+</section>
