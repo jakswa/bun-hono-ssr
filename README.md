@@ -16,7 +16,7 @@ A small Bun SSR starter for AI-assisted apps: Hono routes, Eta templates, HTML f
 ## Quick Start
 
 ```sh
-cp .env.example .env
+cp .env.example .env.local
 bun install
 bun run db:migrate
 bun run dev
@@ -27,13 +27,14 @@ Open `http://localhost:3000`.
 ## Env
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/myapp"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/honossr"
 SESSION_SECRET="change-me-in-production"
 ASSET_VERSION="dev"
 PORT=3000
 NODE_ENV=development
 ```
 
+Create the local database named in `DATABASE_URL` before running migrations.
 Set production `ASSET_VERSION` to a stable release identifier, such as a git SHA.
 
 ## Scripts
@@ -44,7 +45,7 @@ bun run start       # Run src/index.ts
 bun run db:migrate  # Apply unapplied SQL migrations
 bun run db:types    # Generate bun-sqlgen query result types
 bun run typecheck   # TypeScript verification
-bun run test        # Test suite using .env.test and --only-failures
+bun test            # Concurrent test suite using .env.test
 bun run build       # Verification: db types, typecheck, tests
 ```
 
@@ -75,14 +76,16 @@ src/
 - Keep Eta escaping enabled.
 - Use semantic CSS classes in `src/styles/app.css`.
 - Do not concatenate SQL strings or use `sql.unsafe` with user input.
-- After DB changes, run `bun run db:types`, `bun run typecheck`, and `bun run test`.
+- After DB changes, run `bun run db:types`, `bun run typecheck`, and `bun test`.
 
 ## Database
 
 - Add schema changes as numbered SQL files in `src/db/migrations`.
 - Put app queries in `src/db/queries/*.ts` using `sql.QueryName\`...\``.
 - `bun run db:types` validates queries against migrations and refreshes `queries.gen.d.ts`.
-- The default tests do not require a migrated external database; they avoid DB-backed routes.
+- `bun test` resets and migrates the `.env.test` database before running tests concurrently.
+- Test `DATABASE_URL` must end with `test`; the setup refuses to reset any other database name.
+- Tests should create unique data and avoid global row-count assertions.
 - Runtime registration/login need a real `DATABASE_URL` and `bun run db:migrate`.
 
 ## Auth

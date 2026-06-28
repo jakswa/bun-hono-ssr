@@ -1,5 +1,5 @@
 import { sql } from '../client'
-import { randomUUID } from 'node:crypto'
+import { randomUUIDv7 } from 'bun'
 
 export async function getUserById(id: string) {
   const [user] = await sql.GetUserById`
@@ -29,7 +29,7 @@ export async function createUser(input: {
 }) {
   const [user] = await sql.CreateUser`
     INSERT INTO users (id, name, email, email_normalized, password_hash)
-    VALUES (${randomUUID()}, ${input.name}, ${input.email}, ${input.emailNormalized}, ${input.passwordHash})
+    VALUES (${randomUUIDv7()}, ${input.name}, ${input.email}, ${input.emailNormalized}, ${input.passwordHash})
     RETURNING id, name, email, created_at
   `
 
