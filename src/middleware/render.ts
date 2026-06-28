@@ -1,11 +1,11 @@
 import { Eta } from 'eta'
 import { createMiddleware } from 'hono/factory'
-import { join } from 'node:path'
 import type { CurrentUser, Renderer } from '../app-types'
 import { env } from '../utils/env'
+import { paths } from '../utils/paths'
 
 const eta = new Eta({
-  views: join(process.cwd(), 'src/views'),
+  views: paths.views,
   cache: env.NODE_ENV === 'production',
 })
 

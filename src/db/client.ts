@@ -1,5 +1,6 @@
 import { SQL } from 'bun'
-import { withTypes } from '@ilbertt/bun-sqlgen'
 import { env } from '../utils/env'
+import type { Queries } from './queries/queries.gen'
+import { withTypedQueries } from './typed-sql'
 
-export const sql = withTypes(new SQL(env.DATABASE_URL))
+export const sql = withTypedQueries<Queries>(new SQL(env.DATABASE_URL))

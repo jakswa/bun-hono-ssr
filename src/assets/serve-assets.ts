@@ -1,4 +1,6 @@
 import type { Context } from 'hono'
+import { join } from 'node:path'
+import { paths } from '../utils/paths'
 
 const contentTypes: Record<string, string> = {
   css: 'text/css; charset=utf-8',
@@ -17,7 +19,7 @@ const contentTypes: Record<string, string> = {
 let cachedCss: string | undefined
 
 function assetCacheHeader() {
-  return process.env.NODE_ENV === 'production'
+  return process.env['NODE_ENV'] === 'production'
     ? 'public, max-age=31536000, immutable'
     : 'no-store'
 }
@@ -38,11 +40,11 @@ function contentTypeFor(path: string) {
 }
 
 async function readAppCss() {
-  if (process.env.NODE_ENV === 'production' && cachedCss) return cachedCss
+  if (process.env['NODE_ENV'] === 'production' && cachedCss) return cachedCss
 
-  const css = await Bun.file('src/styles/app.css').text()
+  const css = await Bun.file(join(paths.appAssets, 'app.css')).text()
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env['NODE_ENV'] === 'production') {
     cachedCss = css
   }
 
@@ -62,7 +64,7 @@ export async function serveAssets(c: Context) {
     return c.body(await readAppCss())
   }
 
-  const file = Bun.file(`public/assets/${path}`)
+  const file = Bun.file(join(paths.appAssets, path))
 
   if (!(await file.exists())) {
     return c.notFound()

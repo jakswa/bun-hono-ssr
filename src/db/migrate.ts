@@ -1,5 +1,7 @@
 import { SQL } from 'bun'
 import { readdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { paths } from '../utils/paths'
 
 export async function migrate(databaseUrl: string, options: { quiet?: boolean } = {}) {
   const sql = new SQL(databaseUrl)
@@ -12,7 +14,7 @@ export async function migrate(databaseUrl: string, options: { quiet?: boolean } 
       )
     `
 
-    const files = (await readdir('src/db/migrations'))
+    const files = (await readdir(paths.dbMigrations))
       .filter((file) => file.endsWith('.sql'))
       .sort()
 
@@ -27,7 +29,7 @@ export async function migrate(databaseUrl: string, options: { quiet?: boolean } 
         if (alreadyApplied) continue
 
         if (!options.quiet) console.log(`Applying migration: ${file}`)
-        await tx.file(`src/db/migrations/${file}`)
+        await tx.file(join(paths.dbMigrations, file))
         await tx`INSERT INTO schema_migrations (filename) VALUES (${file})`
       }
     })
