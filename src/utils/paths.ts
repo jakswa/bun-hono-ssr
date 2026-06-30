@@ -1,9 +1,10 @@
 import { join } from 'node:path'
 
-const runtimeRoot = process.env['NODE_ENV'] === 'production' ? 'build' : '.'
+// In dev, runtime files live under src/. In prod, the build copies them under build/.
+const runtimeRoot = process.env['NODE_ENV'] === 'production' ? 'build' : 'src'
 
 export const paths = {
-  appAssets: join(runtimeRoot, 'app/assets'),
+  appAssets: join(runtimeRoot, 'static'),
   dbMigrations: join(runtimeRoot, 'db/migrations'),
-  views: join(runtimeRoot, 'app/views'),
+  views: join(runtimeRoot, 'views'),
 }

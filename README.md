@@ -8,15 +8,19 @@ A small Bun SSR starter for AI-assisted apps: Hono routes, Eta templates, HTML f
 - Use Hono middleware/routes and Eta SSR templates.
 - Use plain HTML forms for UI actions.
 - Use `Bun.SQL` with named bun-sqlgen queries in `src/db/queries/*.ts`.
-- Use raw SQL migrations in `db/migrations/*.sql`.
+- Use raw SQL migrations in `src/db/migrations/*.sql`.
 - Use encrypted private-cookie sessions. There is no session table or per-request session lookup.
 - Use `Bun.password` for password hashing.
-- Put templates in `app/views` and CSS/images in `app/assets`.
+- Put templates in `src/views` and CSS/images in `src/static`.
 
 ## Quick Start
 
+Create a local copy from the starter template, then configure and run:
+
 ```sh
-cp .env.example .env.local
+bun create gh:jakswa/bun-hono-ssr my-app
+cd my-app
+cp .env.example .env.local   # then edit DATABASE_URL and SESSION_SECRET
 bun install
 bun run db:migrate
 bun run dev
@@ -55,23 +59,43 @@ Every `src/tasks/*.ts` file becomes a production-runnable `build/tasks/*.js` ent
 
 ## Structure
 
+All code lives under `src/`. Runtime files (templates, assets, migrations) stay as
+files and are copied verbatim into `build/`; the rest is bundled.
+
+- **`src/views/`** — `.eta` templates. Read at runtime by Eta (`paths.views`). Copied to `build/views/`.
+- **`src/static/`** — `.css`/`.svg` assets. Read at runtime by `serve-assets.ts` (`paths.appAssets`). Copied to `build/static/`.
+- **`src/db/migrations/`** — raw SQL migrations. Read at runtime by `migrate.ts` (`paths.dbMigrations`). Copied to `build/db/migrations/`.
+- Everything else under `src/` is TypeScript bundled by `bun run app:build` into `build/index.js` and `build/tasks/*.js`. Only the bundled output ships to prod.
+- **`src/build.ts`** — build-time tooling. Runs on the dev/CI machine only; never bundled or shipped.
+
+`runtimeRoot` in `src/utils/paths.ts` flips between `src` (dev) and `build` (prod) so
+the same code resolves runtime files in both. `build/` is gitignored and won't exist
+until you run `bun run app:build`.
+
 ```txt
-app/
-├── assets/app.css
-└── views/
-db/
-└── migrations/001_init.sql
 src/
-├── app.ts
-├── index.ts
-├── assets/serve-assets.ts
+├── index.ts                # server entrypoint (dev + prod)
+├── app.ts                  # Hono app, middleware, routes
+├── app-types.ts            # Hono app/variables typings
+├── build.ts                # build tooling, never shipped
+├── views/                  # .eta templates, copied to build/views/
+│   ├── layouts/main.eta
+│   ├── partials/header.eta, footer.eta
+│   ├── home.eta, home-content.eta
+│   ├── dashboard.eta, dashboard-content.eta
+│   └── auth/login.eta, login-content.eta, register.eta, register-content.eta
+├── static/                 # app.css, logo.svg, favicon.svg; copied to build/static/
+├── assets/serve-assets.ts  # versioned, cached asset serving
 ├── db/
-│   ├── client.ts
-│   └── queries/
-├── middleware/
-├── routes/
-├── tasks/migrate.ts
-└── utils/
+│   ├── client.ts           # Bun.SQL client
+│   ├── typed-sql.ts        # bun-sqlgen sql-tagged template helper
+│   ├── migrate.ts          # migration runner
+│   ├── migrations/001_init.sql  # raw SQL, copied to build/db/migrations/
+│   └── queries/            # named queries (users.ts) + queries.gen.d.ts
+├── middleware/             # render.ts, current-user.ts
+├── routes/                 # home.ts, dashboard.ts, auth.ts
+├── tasks/                  # migrate.ts (each file → build/tasks/*.js)
+└── utils/                  # env, password, validation, private-session, paths
 ```
 
 ## Development Rules
@@ -79,13 +103,13 @@ src/
 - Add pages in `src/routes` and render templates with `c.var.render('template-name', data)`.
 - Keep templates simple: display data, avoid business logic, and do not raw-print user input.
 - Keep Eta escaping enabled.
-- Use semantic CSS classes in `app/assets/app.css`.
+- Use semantic CSS classes in `src/static/app.css`.
 - Do not concatenate SQL strings or use `sql.unsafe` with user input.
 - After DB changes, run `bun run db:types`, `bun run typecheck`, and `bun test`.
 
 ## Database
 
-- Add schema changes as numbered SQL files in `db/migrations`.
+- Add schema changes as numbered SQL files in `src/db/migrations`.
 - Put app queries in `src/db/queries/*.ts` using `sql.QueryName\`...\``.
 - `bun run db:types` validates queries against migrations and refreshes `queries.gen.d.ts`.
 - `bun test` resets and migrates the `.env.test` database before running tests concurrently.
@@ -102,15 +126,15 @@ src/
 
 ## Assets
 
-- `/assets/:version/app.css` maps to `app/assets/app.css`.
-- Other files map to `app/assets/*`.
+- `/assets/:version/app.css` maps to `src/static/app.css`.
+- Other files map to `src/static/*`.
 - Production responses use long-lived immutable caching.
 - Development responses use `no-store`.
 
 ## Production Build
 
-- `scripts/build.ts` bundles `src/index.ts` and every `src/tasks/*.ts` file.
-- It copies runtime files from `app/` and `db/migrations/` into `build/`.
+- `src/build.ts` bundles `src/index.ts` and every `src/tasks/*.ts` file.
+- It copies runtime files (`src/views`, `src/static`, `src/db/migrations`) into `build/`.
 - Docker copies only `build/`; it does not need `src/` or `node_modules/` at runtime.
 
 ## Docker

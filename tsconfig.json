@@ -9,5 +9,5 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "scripts", "tests"]
+  "include": ["src", "tests"]
 }

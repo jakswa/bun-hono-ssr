@@ -26,8 +26,9 @@ if (!result.success) {
   process.exit(1)
 }
 
-await cp(join(root, 'app'), join(buildDir, 'app'), { recursive: true })
-await cp(join(root, 'db/migrations'), join(buildDir, 'db/migrations'), {
+await cp(join(root, 'src/views'), join(buildDir, 'views'), { recursive: true })
+await cp(join(root, 'src/static'), join(buildDir, 'static'), { recursive: true })
+await cp(join(root, 'src/db/migrations'), join(buildDir, 'db/migrations'), {
   recursive: true,
 })
 

@@ -8,9 +8,9 @@
     "start": "bun src/index.ts",
     "start:prod": "bun build/index.js",
     "db:migrate": "bun src/tasks/migrate.ts",
-    "db:types": "bun bun-sqlgen generate 'src/**/*.ts' --migrations db/migrations --out src/db/queries/queries.gen.d.ts",
+    "db:types": "bun bun-sqlgen generate 'src/**/*.ts' --migrations src/db/migrations --out src/db/queries/queries.gen.d.ts",
     "typecheck": "tsc --noEmit",
-    "app:build": "bun scripts/build.ts",
+    "app:build": "bun src/build.ts",
     "build": "bun run db:types && bun run typecheck && bun test && bun run app:build"
   },
   "dependencies": {

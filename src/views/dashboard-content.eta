@@ -8,7 +8,7 @@
   <div class="card stack">
     <h2>What to build next</h2>
     <p>
-      Add your application tables in <code>db/migrations</code>, put named SQL
+      Add your application tables in <code>src/db/migrations</code>, put named SQL
       queries in <code>src/db/queries</code>, then render new pages from
       <code>src/routes</code>.
     </p>
