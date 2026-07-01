@@ -10,10 +10,10 @@ describe('app', () => {
     expect(await res.text()).toContain('<!doctype html>')
   })
 
-  test('css asset renders without database lookup', async () => {
-    const res = await app.request('/assets/test/app.css')
+  test('tracked asset renders without database lookup', async () => {
+    const res = await app.request('/assets/test/logo.svg')
     expect(res.status).toBe(200)
-    expect(res.headers.get('content-type')).toContain('text/css')
+    expect(res.headers.get('content-type')).toContain('image/svg+xml')
   })
 
   test('dashboard redirects anonymous users', async () => {

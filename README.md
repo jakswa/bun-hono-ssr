@@ -1,6 +1,6 @@
 # Bun Hono SSR Starter
 
-A small Bun SSR starter for AI-assisted apps: Hono routes, Eta templates, HTML forms, PostgreSQL, raw SQL migrations, encrypted cookie sessions, and one CSS file.
+A small Bun SSR starter for AI-assisted apps: Hono routes, Eta templates, HTML forms, PostgreSQL, raw SQL migrations, encrypted cookie sessions, and generated Tailwind CSS.
 
 ## Shape
 
@@ -11,7 +11,7 @@ A small Bun SSR starter for AI-assisted apps: Hono routes, Eta templates, HTML f
 - Use raw SQL migrations in `src/db/migrations/*.sql`.
 - Use encrypted private-cookie sessions. There is no session table or per-request session lookup.
 - Use `Bun.password` for password hashing.
-- Put templates in `src/views` and CSS/images in `src/static`.
+- Put templates in `src/views`, Tailwind source and generated CSS in `src/static`, and images in `src/static`.
 
 ## Quick Start
 
@@ -44,14 +44,16 @@ For Docker builds, pass `ASSET_VERSION` as a build arg so asset URLs roll back w
 ## Scripts
 
 ```sh
-bun run dev         # Watch and run src/index.ts
-bun run start       # Run src/index.ts
+bun run dev         # Watch Tailwind CSS and run src/index.ts
+bun run css:build   # Generate src/static/app.css from Tailwind
+bun run css:watch   # Watch and regenerate src/static/app.css
+bun run start       # Build CSS, then run src/index.ts
 bun run start:prod  # Run build/index.js
 bun run db:migrate  # Apply unapplied SQL migrations
 bun run db:types    # Generate bun-sqlgen query result types
 bun run typecheck   # TypeScript verification
 bun test            # Concurrent test suite using .env.test
-bun run app:build   # Bundle src/index.ts and src/tasks/*.ts into build/
+bun run app:build   # Build CSS, then bundle src/index.ts and src/tasks/*.ts into build/
 bun run build       # Verification plus app:build
 ```
 
@@ -63,7 +65,7 @@ All code lives under `src/`. Runtime files (templates, assets, migrations) stay 
 files and are copied verbatim into `build/`; the rest is bundled.
 
 - **`src/views/`** — `.eta` templates. Read at runtime by Eta (`paths.views`). Copied to `build/views/`.
-- **`src/static/`** — `.css`/`.svg` assets. Read at runtime by `serve-assets.ts` (`paths.appAssets`). Copied to `build/static/`.
+- **`src/static/`** — Tailwind input, generated `.css`, and `.svg` assets. Read at runtime by `serve-assets.ts` (`paths.appAssets`). Copied to `build/static/`.
 - **`src/db/migrations/`** — raw SQL migrations. Read at runtime by `migrate.ts` (`paths.dbMigrations`). Copied to `build/db/migrations/`.
 - Everything else under `src/` is TypeScript bundled by `bun run app:build` into `build/index.js` and `build/tasks/*.js`. Only the bundled output ships to prod.
 - **`src/build.ts`** — build-time tooling. Runs on the dev/CI machine only; never bundled or shipped.
@@ -84,7 +86,7 @@ src/
 │   ├── home.eta, home-content.eta
 │   ├── dashboard.eta, dashboard-content.eta
 │   └── auth/login.eta, login-content.eta, register.eta, register-content.eta
-├── static/                 # app.css, logo.svg, favicon.svg; copied to build/static/
+├── static/                 # app.tailwind.css source, generated app.css, svg assets
 ├── assets/serve-assets.ts  # versioned, cached asset serving
 ├── db/
 │   ├── client.ts           # Bun.SQL client
@@ -103,7 +105,7 @@ src/
 - Add pages in `src/routes` and render templates with `c.var.render('template-name', data)`.
 - Keep templates simple: display data, avoid business logic, and do not raw-print user input.
 - Keep Eta escaping enabled.
-- Use semantic CSS classes in `src/static/app.css`.
+- Prefer Tailwind utilities in `src/views/**/*.eta`; keep `src/static/app.tailwind.css` limited to imports, sources, theme tokens, font faces, and rare base/global rules.
 - Do not concatenate SQL strings or use `sql.unsafe` with user input.
 - After DB changes, run `bun run db:types`, `bun run typecheck`, and `bun test`.
 
@@ -126,14 +128,14 @@ src/
 
 ## Assets
 
-- `/assets/:version/app.css` maps to `src/static/app.css`.
-- Other files map to `src/static/*`.
+- `/assets/:version/app.css` maps to generated `src/static/app.css`.
+- Other files map to `src/static/*`. Do not hand-edit or track generated `src/static/app.css`; edit `src/static/app.tailwind.css` and templates instead.
 - Production responses use long-lived immutable caching.
 - Development responses use `no-store`.
 
 ## Production Build
 
-- `src/build.ts` bundles `src/index.ts` and every `src/tasks/*.ts` file.
+- `bun run app:build` generates CSS, then `src/build.ts` bundles `src/index.ts` and every `src/tasks/*.ts` file.
 - It copies runtime files (`src/views`, `src/static`, `src/db/migrations`) into `build/`.
 - Docker copies only `build/`; it does not need `src/` or `node_modules/` at runtime.
 
