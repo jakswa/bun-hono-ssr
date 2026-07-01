@@ -1,7 +1,7 @@
 export {}
 
 const commands = [
-  ['bunx', 'tailwindcss', '-i', './src/static/app.tailwind.css', '-o', './src/static/app.css', '--watch'],
+  ['bun', 'run', 'css:watch'],
   ['bun', '--watch', 'src/index.ts'],
 ]
 
