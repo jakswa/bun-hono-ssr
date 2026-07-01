@@ -21,6 +21,7 @@ RUN find build/static -type f \( -name '*.css' -o -name '*.js' -o -name '*.svg' 
   && find build/static -type f \( -name '*.css' -o -name '*.js' -o -name '*.svg' \) -exec brotli -k -f -q 11 {} +
 
 FROM base
-COPY --from=verify /app/build ./build
+COPY --from=verify --chown=bun:bun /app/build ./build
+USER bun
 EXPOSE 3000
 CMD ["bun", "build/index.js"]

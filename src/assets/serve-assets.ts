@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import { join } from 'node:path'
+import { env } from '../utils/env'
 import { paths } from '../utils/paths'
 
 const contentTypes: Record<string, string> = {
@@ -21,7 +22,7 @@ type CompressedEncoding = 'br' | 'gzip'
 let cachedCss: string | undefined
 
 function assetCacheHeader() {
-  return process.env['NODE_ENV'] === 'production'
+  return env.NODE_ENV === 'production'
     ? 'public, max-age=31536000, immutable'
     : 'no-store'
 }
@@ -68,11 +69,11 @@ async function compressedVariantFor(
 }
 
 async function readAppCss() {
-  if (process.env['NODE_ENV'] === 'production' && cachedCss) return cachedCss
+  if (env.NODE_ENV === 'production' && cachedCss) return cachedCss
 
   const css = await Bun.file(join(paths.appAssets, 'app.css')).text()
 
-  if (process.env['NODE_ENV'] === 'production') {
+  if (env.NODE_ENV === 'production') {
     cachedCss = css
   }
 

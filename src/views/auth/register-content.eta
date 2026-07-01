@@ -16,12 +16,12 @@
 
     <label class="grid gap-1.5">
       <span>Name</span>
-      <input class="w-full rounded-lg border border-slate-300 px-3 py-2.5" name="name" autocomplete="name" value="<%= it.values.name || '' %>" required>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2.5" name="name" autocomplete="name" maxlength="200" value="<%= it.values.name || '' %>" required>
     </label>
 
     <label class="grid gap-1.5">
       <span>Email</span>
-      <input class="w-full rounded-lg border border-slate-300 px-3 py-2.5" name="email" type="email" autocomplete="email" value="<%= it.values.email || '' %>" required>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2.5" name="email" type="email" autocomplete="email" maxlength="320" value="<%= it.values.email || '' %>" required>
     </label>
 
     <label class="grid gap-1.5">

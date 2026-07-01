@@ -24,6 +24,8 @@ describe('app', () => {
   test('home page renders', async () => {
     const res = await app.request('/')
     expect(res.status).toBe(200)
+    expect(res.headers.get('cache-control')).toBe('private, no-cache')
+    expect(res.headers.get('content-security-policy')).toContain("default-src 'self'")
     expect(await res.text()).toContain('<!doctype html>')
   })
 
@@ -72,6 +74,7 @@ describe('app', () => {
         email: 'test@example.com',
         created_at: new Date('2026-01-01T00:00:00.000Z').toISOString(),
       },
+      issuedAt: new Date().toISOString(),
     })
 
     const res = await app.request('/dashboard', {
@@ -80,5 +83,12 @@ describe('app', () => {
 
     expect(res.status).toBe(200)
     expect(await res.text()).toContain('Signed in as <strong>Test User</strong>')
+  })
+
+  test('missing pages render a styled 404', async () => {
+    const res = await app.request('/does-not-exist')
+
+    expect(res.status).toBe(404)
+    expect(await res.text()).toContain('Page not found')
   })
 })

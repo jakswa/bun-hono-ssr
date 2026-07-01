@@ -8,10 +8,14 @@ export type PrivateSession = {
     email: string
     created_at: string
   }
+  issuedAt: string
   expiresAt: string
 }
 
 const algorithm = 'aes-256-gcm'
+
+export const sessionCookieName =
+  env.NODE_ENV === 'production' ? '__Host-session' : 'session'
 
 function encryptionKey() {
   return createHash('sha256').update(env.SESSION_SECRET).digest()
@@ -49,8 +53,11 @@ export function decryptSession(value: string): PrivateSession | null {
       decipher.final(),
     ]).toString('utf8')
     const session = JSON.parse(decrypted) as PrivateSession
+    const issuedAt = new Date(session.issuedAt)
+    const expiresAt = new Date(session.expiresAt)
 
-    if (new Date(session.expiresAt) <= new Date()) return null
+    if (Number.isNaN(issuedAt.getTime())) return null
+    if (Number.isNaN(expiresAt.getTime()) || expiresAt <= new Date()) return null
     if (!session.user?.id || !session.user.email || !session.user.name) return null
 
     return session

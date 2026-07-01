@@ -9,7 +9,7 @@ A small Bun SSR starter for AI-assisted apps: Hono routes, Eta templates, HTML f
 - Use plain HTML forms for UI actions.
 - Use `Bun.SQL` with named bun-sqlgen queries in `src/db/queries/*.ts`.
 - Use raw SQL migrations in `src/db/migrations/*.sql`.
-- Use encrypted private-cookie sessions. There is no session table or per-request session lookup.
+- Use encrypted private-cookie sessions. There is no session table or per-request session lookup, so sessions are stateless and non-revocable by default.
 - Use `Bun.password` for password hashing.
 - Put templates in `src/views`, Tailwind source and generated CSS in `src/static`, and images in `src/static`.
 
@@ -85,6 +85,7 @@ src/
 │   ├── partials/header.eta, footer.eta
 │   ├── home.eta, home-content.eta
 │   ├── dashboard.eta, dashboard-content.eta
+│   ├── error.eta, error-content.eta
 │   └── auth/login.eta, login-content.eta, register.eta, register-content.eta
 ├── static/                 # app.tailwind.css source, generated app.css, svg assets
 ├── assets/serve-assets.ts  # versioned, cached asset serving
@@ -118,13 +119,15 @@ src/
 - Test `DATABASE_URL` must end with `test`; the setup refuses to reset any other database name.
 - Tests should create unique data and avoid global row-count assertions.
 - Runtime registration/login need a real `DATABASE_URL` and `bun run db:migrate`.
+- The migration runner applies pending files inside one transaction, so PostgreSQL commands that cannot run in a transaction block (for example `CREATE INDEX CONCURRENTLY`) need a custom migration path.
 
 ## Auth
 
 - Registration stores a user with `Bun.password.hash()`.
 - Login verifies with `Bun.password.verify()`.
-- The session payload is encrypted into an HTTP-only cookie using `SESSION_SECRET`.
-- Protected routes check `c.var.user`; logout clears the cookie.
+- The session payload is encrypted into an HTTP-only cookie using `SESSION_SECRET` and includes an `issuedAt` timestamp for future invalidation checks.
+- Protected routes check `c.var.user`; logout clears only the current browser cookie.
+- Stateless sessions are not globally revocable by default and can carry stale user identity until expiry. Re-fetch users on sensitive routes, and compare `issuedAt` against a per-user or global invalidation watermark if you add password changes, account deletion, or "log out everywhere".
 
 ## Assets
 
